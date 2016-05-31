@@ -4,11 +4,11 @@ import os.path as path
 
 print('iCloud Shared Download')
 
-#sharedUrl = input('Paste Entire URL:')
+sharedUrl = input('Paste Entire URL:')
 
-#stream_id = sharedUrl.split('#').pop()
+stream_id = sharedUrl.split('#').pop()
+#stream_id = 'B0VJ0DiRHJObc80'
 
-stream_id = 'B0VJ0DiRHJObc80'
 base_url = 'https://p13-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
 
 url = base_url + 'webstream'
