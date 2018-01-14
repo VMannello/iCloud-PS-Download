@@ -9,7 +9,7 @@ def download_stream(stream_id):
     url = base_url + 'webstream'
     print('Getting Photo List From -> ' + url)
 
-    r = requests.post(url, data='{"streamCtag":null}')
+    r = requests.post(url, data=json.dumps({"streamCtag": None}))
     data = r.json()
     guids = [item['photoGuid'] for item in data['photos']]
 
@@ -19,7 +19,7 @@ def download_stream(stream_id):
     for batch in batches:
         url = base_url + 'webasseturls'
         print('Getting Photo Urls From -> ' + url)
-        r = requests.post(url, data='{"photoGuids":["' + '","'.join(batch) + '"]}')
+        r = requests.post(url, data=json.dumps({"photoGuids": list(batch)}))
         data = r.json()
         locations = data['locations']
         items = data['items']
