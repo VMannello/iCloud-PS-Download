@@ -31,32 +31,51 @@ def get_stream_contents(stream_id):
     }
 
 
-def download_items(stream_contents, filename_template):
+def download_items(stream_contents, filename_template, all_derivatives=False):
     locations = stream_contents['locations']
-    for key, item in stream_contents['items'].items():
-        original_filename = os.path.basename(item['url_path'].split('?')[0])
-        template_namespace = {
-            'stream_id': stream_contents['id'],
-            'stream_name': stream_contents['stream_data']['streamName'],
-            'id': key,
-            'original_filename': original_filename,
-            'original_extension': os.path.splitext(original_filename)[1],
-        }
+    for index, photo in enumerate(stream_contents['stream_data']['photos']):
+        derivatives = [dict(derivative, id=id) for (id, derivative) in photo['derivatives'].items()]
+        if not all_derivatives:
+            # Assume the largest derivative is the original:
+            original_derivative = max(derivatives, key=lambda d: int(d['fileSize']))
+            derivatives = [original_derivative]
 
-        file_name = filename_template.format(**template_namespace)
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
-        if os.path.exists(file_name):
-            print('Already exists: %s' % file_name)
-            continue
-        location = item['url_location']
-        host = locations[location]['hosts'][0]
-        url = 'https://' + host + item['url_path']
-        print('Downloading from ' + url)
-        r = requests.get(url)
-        r.raise_for_status()
-        print('Saving to ' + file_name)
-        with open(file_name, 'wb') as f:
-            f.write(r.content)
+        for derivative in derivatives:
+            item_id = derivative['checksum']
+            item = stream_contents['items'][item_id]
+            original_filename = os.path.basename(item['url_path'].split('?')[0])
+            template_namespace = {
+                'stream_id': stream_contents['id'],
+                'stream_name': stream_contents['stream_data']['streamName'],
+                'photo_guid': photo['photoGuid'],
+                'item_id': item_id,
+                'photo_index': index,
+                'photo_index_padded': '%05d' % index,
+                'derivative_id': derivative['id'],
+                'original_filename': original_filename,
+                'original_extension': os.path.splitext(original_filename)[1],
+            }
+
+            file_name = filename_template.format(**template_namespace)
+            os.makedirs(os.path.dirname(file_name), exist_ok=True)
+            if os.path.exists(file_name):
+                print('Already exists: %s' % file_name)
+                continue
+            location = item['url_location']
+            host = locations[location]['hosts'][0]
+            url = 'https://' + host + item['url_path']
+            print('Downloading photo %s derivative %s to %s (%s bytes)' % (
+                template_namespace['photo_guid'],
+                template_namespace['derivative_id'],
+                file_name,
+                derivative['fileSize'],
+            ))
+            r = requests.get(url, stream=True)
+            r.raise_for_status()
+            with open(file_name, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=512 * 1024):
+                    if chunk:
+                        f.write(chunk)
 
 
 def parse_args():
@@ -66,8 +85,13 @@ def parse_args():
     ap.add_argument('--no-download', action='store_true', default=False, help='do not download actual items')
     ap.add_argument(
         '--download-filename-template',
-        default='./{stream_id}/{id}{original_extension}',
+        default='./{stream_id}/{original_filename}',
         help='File download name template (use {} placeholders)\nDefault "%(default)s"',
+    )
+    ap.add_argument(
+        '--all-derivatives',
+        action='store_true',
+        help='download all derivatives (not just assumed original) (be careful with the filename template!)',
     )
     args = ap.parse_args()
     if not args.url:
@@ -91,7 +115,11 @@ def main():
             json.dump(stream_contents, dump_file, sort_keys=True, indent=2)
             print('Wrote metadata to %s' % dump_file.name)
     if not args.no_download:
-        download_items(stream_contents, filename_template=args.download_filename_template)
+        download_items(
+            stream_contents,
+            filename_template=args.download_filename_template,
+            all_derivatives=args.all_derivatives,
+        )
     else:
         print('Skipping item download (--no-download)')
 
