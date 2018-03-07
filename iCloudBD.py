@@ -1,8 +1,9 @@
 import requests
 import json
 import argparse
+import tempfile
 import os.path
-
+from shutil import copyfile
 
 def get_stream_contents(stream_id):
     base_url = 'https://p13-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
@@ -72,10 +73,12 @@ def download_items(stream_contents, filename_template, all_derivatives=False):
             ))
             r = requests.get(url, stream=True)
             r.raise_for_status()
-            with open(file_name, 'wb') as f:
+            tf = tempfile.NamedTemporaryFile()
+            with open(tf.name, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=512 * 1024):
                     if chunk:
                         f.write(chunk)
+            copyfile(tf.name, file_name)
 
 
 def parse_args():
