@@ -6,7 +6,7 @@ from time import sleep
 
 
 def get_stream_contents(stream_id):
-    base_url = 'https://p13-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
+    base_url = 'https://p43-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
     url = base_url + 'webstream'
     print('Getting photo list...')
     r = requests.post(url, data=json.dumps({"streamCtag": None}))
