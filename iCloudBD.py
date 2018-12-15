@@ -13,7 +13,7 @@ def get_stream_contents(stream_id):
     stream_data = r.json()
     guids = [item['photoGuid'] for item in stream_data['photos']]
     print('%d items in stream.' % len(guids))
-    chunk = 20
+    chunk = 1
     batches = list(zip(*[iter(guids)] * chunk))
     locations = {}
     items = {}
