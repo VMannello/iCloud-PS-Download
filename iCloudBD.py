@@ -2,6 +2,7 @@ import requests
 import json
 import argparse
 import os.path
+from time import sleep
 
 
 def get_stream_contents(stream_id):
@@ -18,6 +19,7 @@ def get_stream_contents(stream_id):
     items = {}
     for i, batch in enumerate(batches, 1):
         url = base_url + 'webasseturls'
+        sleep (1)
         print('Getting photo URLs (%d/%d)...' % (i, len(batches)))
         r = requests.post(url, data=json.dumps({"photoGuids": list(batch)}))
         batch_data = r.json()
