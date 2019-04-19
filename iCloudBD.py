@@ -5,6 +5,7 @@ import os.path
 
 
 def get_stream_contents(stream_id):
+    """Gets available assets"""
     base_url = 'https://p13-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
     url = base_url + 'webstream'
     print('Getting photo list...')
@@ -32,6 +33,8 @@ def get_stream_contents(stream_id):
 
 
 def download_items(stream_contents, filename_template, all_derivatives=False):
+    """Performs download"""
+
     locations = stream_contents['locations']
     for index, photo in enumerate(stream_contents['stream_data']['photos']):
         derivatives = [dict(derivative, id=id) for (id, derivative) in photo['derivatives'].items()]
@@ -79,6 +82,11 @@ def download_items(stream_contents, filename_template, all_derivatives=False):
 
 
 def parse_args():
+    """Parses command line arguements:
+    --dump-json
+    --no-download
+    --download-filename-template
+    --all-derivatives"""
     ap = argparse.ArgumentParser()
     ap.add_argument('url', nargs='?')
     ap.add_argument('--dump-json', help='dump stream info into this JSON file')
@@ -101,6 +109,7 @@ def parse_args():
 
 
 def main():
+    """Main function to run script"""
     args = parse_args()
     if '#' in args.url:
         stream_id = args.url.split('#').pop()
