@@ -17,7 +17,11 @@ def generate_download_items(stream_contents, filename_template, all_derivatives=
 
         for derivative in derivatives:
             item_id = derivative['checksum']
-            item = stream_contents['items'][item_id]
+            try:
+                item = stream_contents['items'][item_id]
+            except KeyError:
+                print('Missing item %s' % item_id)
+                continue
             original_filename = os.path.basename(item['url_path'].split('?')[0])
             template_namespace = {
                 'stream_id': stream_contents['id'],

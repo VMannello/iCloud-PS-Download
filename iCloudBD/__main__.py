@@ -1,6 +1,5 @@
 import argparse
 import json
-
 import requests
 
 from iCloudBD.downloader import download_item
