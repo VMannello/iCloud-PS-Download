@@ -1,4 +1,6 @@
 import json
+import random
+import time
 
 import requests
 
@@ -29,6 +31,9 @@ def get_stream_contents(stream_id, mme_host='p13-sharedstreams.icloud.com'):
         batch_data = r.json()
         locations.update(batch_data.get('locations', {}))
         items.update(batch_data.get('items', {}))
+
+        # Sleep for a while to avoid 509 throttling errors
+        time.sleep(random.uniform(.5, 1.2))
 
     return {
         'stream_data': stream_data,
