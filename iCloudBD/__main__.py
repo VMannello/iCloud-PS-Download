@@ -1,6 +1,7 @@
-import requests
-import json
 import argparse
+import json
+
+import requests
 
 from iCloudBD.downloader import download_item
 from iCloudBD.stream_contents import get_stream_contents

@@ -4,6 +4,8 @@ import time
 
 import requests
 
+from iCloudBD.utils import do_batch
+
 
 def get_stream_contents(stream_id, mme_host='p13-sharedstreams.icloud.com'):
     """Gets available assets"""
@@ -21,7 +23,7 @@ def get_stream_contents(stream_id, mme_host='p13-sharedstreams.icloud.com'):
     guids = [item['photoGuid'] for item in stream_data['photos']]
     print('%d items in stream.' % len(guids))
     chunk = 20
-    batches = list(zip(*[iter(guids)] * chunk))
+    batches = list(do_batch(guids, batch_size=chunk))
     locations = {}
     items = {}
     for i, batch in enumerate(batches, 1):
