@@ -2,7 +2,7 @@ import argparse
 import json
 
 from iCloudBD.downloader import perform_download
-from iCloudBD.stream_contents import get_stream_contents
+from iCloudBD.stream_contents import get_stream_contents, get_stream_id
 from iCloudBD.stream_parsing import generate_download_items
 
 
@@ -33,18 +33,14 @@ def parse_args():
 
 def main():
     args = parse_args()
-    if '#' in args.url:
-        stream_id = args.url.split('#').pop()
-    else:
-        stream_id = args.url
-    if not stream_id.isalnum():
-        raise ValueError('stream ID should be alphanumeric (got %s)' % stream_id)
+    stream_id = get_stream_id(url=args.url)
     stream_contents = get_stream_contents(stream_id)
-    stream_contents['id'] = stream_id
+
     if args.dump_json:
         with open(args.dump_json, 'w') as dump_file:
             json.dump(stream_contents, dump_file, sort_keys=True, indent=2)
             print('Wrote metadata to %s' % dump_file.name)
+
     if not args.no_download:
         download_items = list(generate_download_items(
             stream_contents,

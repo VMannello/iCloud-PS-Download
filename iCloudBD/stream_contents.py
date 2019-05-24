@@ -38,7 +38,18 @@ def get_stream_contents(stream_id, mme_host='p13-sharedstreams.icloud.com'):
         time.sleep(random.uniform(.5, 1.2))
 
     return {
+        'id': stream_id,
         'stream_data': stream_data,
         'locations': locations,
         'items': items,
     }
+
+
+def get_stream_id(url):
+    if '#' in url:
+        stream_id = url.split('#').pop()
+    else:
+        stream_id = url
+    if not stream_id.isalnum():
+        raise ValueError('stream ID should be alphanumeric (got %s)' % stream_id)
+    return stream_id
