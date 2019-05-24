@@ -82,11 +82,6 @@ def download_items(stream_contents, filename_template, all_derivatives=False):
 
 
 def parse_args():
-    """Parses command line arguements:
-    --dump-json
-    --no-download
-    --download-filename-template
-    --all-derivatives"""
     ap = argparse.ArgumentParser()
     ap.add_argument('url', nargs='?')
     ap.add_argument('--dump-json', help='dump stream info into this JSON file')
@@ -109,7 +104,6 @@ def parse_args():
 
 
 def main():
-    """Main function to run script"""
     args = parse_args()
     if '#' in args.url:
         stream_id = args.url.split('#').pop()
