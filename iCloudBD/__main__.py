@@ -57,7 +57,7 @@ def download_items(stream_contents, filename_template, all_derivatives=False):
 
 def parse_args():
     ap = argparse.ArgumentParser()
-    ap.add_argument('url', nargs='?')
+    ap.add_argument('url')
     ap.add_argument('--dump-json', help='dump stream info into this JSON file')
     ap.add_argument('--no-download', action='store_true', default=False, help='do not download actual items')
     ap.add_argument(
@@ -71,9 +71,6 @@ def parse_args():
         help='download all derivatives (not just assumed original) (be careful with the filename template!)',
     )
     args = ap.parse_args()
-    if not args.url:
-        print('iCloud Shared Download')
-        args.url = input('Paste Entire URL or stream ID: ')
     return args
 
 
