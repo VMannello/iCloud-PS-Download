@@ -3,33 +3,7 @@ import json
 import argparse
 import os.path
 
-
-def get_stream_contents(stream_id):
-    """Gets available assets"""
-    base_url = 'https://p13-sharedstreams.icloud.com/' + stream_id + '/sharedstreams/'
-    url = base_url + 'webstream'
-    print('Getting photo list...')
-    r = requests.post(url, data=json.dumps({"streamCtag": None}))
-    stream_data = r.json()
-    guids = [item['photoGuid'] for item in stream_data['photos']]
-    print('%d items in stream.' % len(guids))
-    chunk = 20
-    batches = list(zip(*[iter(guids)] * chunk))
-    locations = {}
-    items = {}
-    for i, batch in enumerate(batches, 1):
-        url = base_url + 'webasseturls'
-        print('Getting photo URLs (%d/%d)...' % (i, len(batches)))
-        r = requests.post(url, data=json.dumps({"photoGuids": list(batch)}))
-        batch_data = r.json()
-        locations.update(batch_data.get('locations', {}))
-        items.update(batch_data.get('items', {}))
-
-    return {
-        'stream_data': stream_data,
-        'locations': locations,
-        'items': items,
-    }
+from iCloudBD.stream_contents import get_stream_contents
 
 
 def download_items(stream_contents, filename_template, all_derivatives=False):
