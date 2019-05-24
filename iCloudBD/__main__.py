@@ -1,58 +1,10 @@
 import requests
 import json
 import argparse
-import os.path
 
+from iCloudBD.downloader import download_item
 from iCloudBD.stream_contents import get_stream_contents
-
-
-def download_items(stream_contents, filename_template, all_derivatives=False):
-    """Performs download"""
-
-    locations = stream_contents['locations']
-    for index, photo in enumerate(stream_contents['stream_data']['photos']):
-        derivatives = [dict(derivative, id=id) for (id, derivative) in photo['derivatives'].items()]
-        if not all_derivatives:
-            # Assume the largest derivative is the original:
-            original_derivative = max(derivatives, key=lambda d: int(d['fileSize']))
-            derivatives = [original_derivative]
-
-        for derivative in derivatives:
-            item_id = derivative['checksum']
-            item = stream_contents['items'][item_id]
-            original_filename = os.path.basename(item['url_path'].split('?')[0])
-            template_namespace = {
-                'stream_id': stream_contents['id'],
-                'stream_name': stream_contents['stream_data']['streamName'],
-                'photo_guid': photo['photoGuid'],
-                'item_id': item_id,
-                'photo_index': index,
-                'photo_index_padded': '%05d' % index,
-                'derivative_id': derivative['id'],
-                'original_filename': original_filename,
-                'original_extension': os.path.splitext(original_filename)[1],
-            }
-
-            file_name = filename_template.format(**template_namespace)
-            os.makedirs(os.path.dirname(file_name), exist_ok=True)
-            if os.path.exists(file_name):
-                print('Already exists: %s' % file_name)
-                continue
-            location = item['url_location']
-            host = locations[location]['hosts'][0]
-            url = 'https://' + host + item['url_path']
-            print('Downloading photo %s derivative %s to %s (%s bytes)' % (
-                template_namespace['photo_guid'],
-                template_namespace['derivative_id'],
-                file_name,
-                derivative['fileSize'],
-            ))
-            r = requests.get(url, stream=True)
-            r.raise_for_status()
-            with open(file_name, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=512 * 1024):
-                    if chunk:
-                        f.write(chunk)
+from iCloudBD.stream_parsing import generate_download_items
 
 
 def parse_args():
@@ -89,11 +41,13 @@ def main():
             json.dump(stream_contents, dump_file, sort_keys=True, indent=2)
             print('Wrote metadata to %s' % dump_file.name)
     if not args.no_download:
-        download_items(
-            stream_contents,
-            filename_template=args.download_filename_template,
-            all_derivatives=args.all_derivatives,
-        )
+        with requests.session() as sess:
+            for item in generate_download_items(
+                stream_contents,
+                filename_template=args.download_filename_template,
+                all_derivatives=args.all_derivatives,
+            ):
+                download_item(sess, item)
     else:
         print('Skipping item download (--no-download)')
 
