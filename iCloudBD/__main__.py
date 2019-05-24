@@ -1,8 +1,7 @@
 import argparse
 import json
-import requests
 
-from iCloudBD.downloader import download_item
+from iCloudBD.downloader import perform_download
 from iCloudBD.stream_contents import get_stream_contents
 from iCloudBD.stream_parsing import generate_download_items
 
@@ -21,6 +20,12 @@ def parse_args():
         '--all-derivatives',
         action='store_true',
         help='download all derivatives (not just assumed original) (be careful with the filename template!)',
+    )
+    ap.add_argument(
+        '--parallel',
+        type=int,
+        default=1,
+        help='how many downloads to do in parallel (defaults to 1)',
     )
     args = ap.parse_args()
     return args
@@ -41,13 +46,12 @@ def main():
             json.dump(stream_contents, dump_file, sort_keys=True, indent=2)
             print('Wrote metadata to %s' % dump_file.name)
     if not args.no_download:
-        with requests.session() as sess:
-            for item in generate_download_items(
-                stream_contents,
-                filename_template=args.download_filename_template,
-                all_derivatives=args.all_derivatives,
-            ):
-                download_item(sess, item)
+        download_items = list(generate_download_items(
+            stream_contents,
+            filename_template=args.download_filename_template,
+            all_derivatives=args.all_derivatives,
+        ))
+        perform_download(download_items, parallel=args.parallel)
     else:
         print('Skipping item download (--no-download)')
 

@@ -9,8 +9,3 @@ Usage
 * Run e.g. `python -m iCloudBD https://www.icloud.com/sharedalbum/#SomeIdentifierHere`.
 
 See `python -m iCloudBd --help` for more usage help.
-
-To Do
------
-
-- Parallel downloading

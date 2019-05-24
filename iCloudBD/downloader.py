@@ -1,7 +1,19 @@
 import os.path
 
+import requests
 
-def download_item(sess, item):
+parallel_requests_session = None
+
+
+def subprocess_initializer():
+    global parallel_requests_session
+    parallel_requests_session = requests.session()
+
+
+def download_item(item, sess=None):
+    if not sess:
+        sess = parallel_requests_session
+
     os.makedirs(os.path.dirname(item.file_name), exist_ok=True)
     if os.path.exists(item.file_name):
         print('Already exists: %s' % item.file_name)
@@ -20,3 +32,15 @@ def download_item(sess, item):
             if chunk:
                 f.write(chunk)
     return r
+
+
+def perform_download(download_items, parallel=0):
+    if parallel > 1:
+        import multiprocessing
+        with multiprocessing.Pool(processes=parallel, initializer=subprocess_initializer) as p:
+            for result in p.imap_unordered(download_item, download_items, chunksize=10):
+                pass
+    else:
+        with requests.session() as sess:
+            for item in download_item:
+                download_item(item=item, sess=sess)
