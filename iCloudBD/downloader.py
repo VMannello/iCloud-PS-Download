@@ -1,4 +1,5 @@
 import os.path
+import time
 
 import requests
 
@@ -27,10 +28,20 @@ def download_item(item, sess=None):
     ))
     r = sess.get(item.url, stream=True)
     r.raise_for_status()
-    with open(item.file_name, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=512 * 1024):
-            if chunk:
-                f.write(chunk)
+
+    temp_name = item.file_name + '.tmp-%s' % time.time()
+    try:
+        with open(temp_name, 'wb') as f:
+            for chunk in r.iter_content(chunk_size=512 * 1024):
+                if chunk:
+                    f.write(chunk)
+        # Renames should be atomic
+        os.rename(temp_name, item.file_name)
+    finally:
+        try:
+            os.unlink(temp_name)
+        except IOError:
+            pass
     return r
 
 
