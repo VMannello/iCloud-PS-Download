@@ -2,4 +2,5 @@
 *.jpg
 *.json
 *.mp4
+*.py[cod]
 .idea
