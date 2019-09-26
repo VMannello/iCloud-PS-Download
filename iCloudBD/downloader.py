@@ -53,5 +53,5 @@ def perform_download(download_items, parallel=0):
                 pass
     else:
         with requests.session() as sess:
-            for item in download_item:
+            for item in download_items:
                 download_item(item=item, sess=sess)
