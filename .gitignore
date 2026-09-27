@@ -1,6 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+coverage.xml
+.pytest_cache/
+
+# Environments
+.venv
+env/
+venv/
+
+# Type checker caches
+.mypy_cache/
+.ruff_cache/
+ ty_cache/
+
+# IDE
+.idea/
+.vscode/
+
+# Python version
+.python-version
+
+# Downloaded photos
 *.jpeg
 *.jpg
 *.json
 *.mp4
-*.py[cod]
-.idea
+
+# Temporary
+tmp/

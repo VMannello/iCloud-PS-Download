@@ -1,0 +1,95 @@
+[project]
+name = "icloud-ps-download"
+version = "0.2.0"
+description = "Download photos from iCloud shared photo streams"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Vinny Mannello" },
+    { name = "Achim Herwig", email = "achim.herwig@wodca.de" },
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+requires-python = ">=3.13"
+dependencies = [
+    "requests>=2.32",
+]
+
+[project.urls]
+Homepage = "https://github.com/VMannello/iCloud-PS-Download"
+Repository = "https://github.com/VMannello/iCloud-PS-Download"
+
+[project.scripts]
+icloud-ps-download = "icloud_ps_download.__main__:main"
+
+[build-system]
+requires = ["uv_build>=0.12.19,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "prek>=0.5",
+    "pytest>=8.4",
+    "pytest-cov>=6.0",
+    "ruff>=0.15",
+    "ty>=0.0.17",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 120
+fix = false
+
+[tool.ruff.lint]
+select = [
+    "YTT",   # flake8-2020
+    "S",     # flake8-bandit
+    "B",     # flake8-bugbear
+    "A",     # flake8-builtins
+    "C4",    # flake8-comprehensions
+    "T10",   # flake8-debugger
+    "SIM",   # flake8-simplify
+    "C90",   # mccabe
+    "E",     # pycodestyle
+    "W",     # pycodestyle
+    "F",     # pyflakes
+    "PGH",   # pygrep-hooks
+    "UP",    # pyupgrade
+    "RUF",   # ruff
+    "TRY",   # tryceratops
+]
+ignore = [
+    "E501",   # LineTooLong
+    "E731",   # DoNotAssignLambda
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "S101", # Use of assert is fine in tests
+]
+
+[tool.ruff.format]
+preview = false
+
+[tool.ruff.lint.isort]
+force-single-line = true
+
+[tool.ty.environment]
+root = ["src", "tests"]
+
+[tool.ty.terminal]
+output-format = "concise"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.uv.build-backend]
+module-name = "icloud_ps_download"
